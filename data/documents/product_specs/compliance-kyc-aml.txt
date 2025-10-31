@@ -1,0 +1,364 @@
+KYC/AML COMPLIANCE REQUIREMENTS FOR SKYRO FINTECH PLATFORM
+
+Document Version: 2.1
+Last Updated: January 15, 2024
+Owner: Rachel Kim, Chief Compliance Officer
+Classification: Internal Use Only
+
+================================================================================
+OVERVIEW
+================================================================================
+
+This document outlines Know Your Customer (KYC) and Anti-Money Laundering (AML)
+compliance requirements for Skyro's fintech platform. All requirements are based
+on US federal regulations including:
+
+- Bank Secrecy Act (BSA)
+- USA PATRIOT Act
+- FinCEN Customer Due Diligence (CDD) Rule
+- OFAC Sanctions Programs
+
+================================================================================
+CUSTOMER IDENTIFICATION PROGRAM (CIP)
+================================================================================
+
+TIER 1: BASIC VERIFICATION (All Customers)
+
+Required Information:
+- Full legal name (as appears on government ID)
+- Date of birth
+- Residential address (cannot be PO Box)
+- Social Security Number (SSN) or ITIN
+- Email address
+- Phone number
+
+Verification Methods:
+1. Electronic verification via third-party vendors (Alloy, Plaid, Socure)
+2. Document verification (government-issued ID)
+3. Knowledge-based authentication (KBA) questions
+
+Timeframe: Must be completed within 30 days of account opening
+
+TIER 2: ENHANCED VERIFICATION (High-Risk or >$10K Transactions)
+
+Additional Requirements:
+- Proof of address (utility bill, bank statement <90 days)
+- Source of funds documentation
+- Employment information
+- Occupation details
+- Purpose of account
+
+Verification Methods:
+- Manual review by compliance team
+- Enhanced document verification
+- Possible phone verification
+
+TIER 3: BUSINESS ACCOUNTS (Commercial Customers)
+
+Required Information:
+- Legal business name
+- Business type (LLC, Corp, Partnership, etc.)
+- EIN (Employer Identification Number)
+- Business address
+- Industry/business activity
+- Beneficial owners (25%+ ownership)
+- Control person information
+- State of incorporation
+- Formation documents
+
+Verification Methods:
+- Secretary of State business records check
+- Middesk or similar KYB provider
+- Beneficial ownership verification (each owner)
+- OFAC screening for business and all beneficial owners
+
+================================================================================
+OFAC SANCTIONS SCREENING
+================================================================================
+
+Screening Requirements:
+
+1. INITIAL SCREENING
+   - All new customers at account creation
+   - Check against OFAC SDN list
+   - Check against other sanctions lists (EU, UN)
+   - Automatic rejection for positive matches
+   - Manual review for potential matches (fuzzy matching)
+
+2. ONGOING MONITORING
+   - Daily batch screening of all active customers
+   - Real-time screening for transactions >$1,000
+   - Immediate account freeze on positive match
+   - Compliance team notification
+
+3. WATCHLIST SCREENING
+   - Politically Exposed Persons (PEPs)
+   - High-risk jurisdictions
+   - Adverse media screening
+
+Screening Provider: Dow Jones Risk & Compliance
+
+False Positive Handling:
+- Tier 1 analyst reviews within 2 hours
+- Document verification for unclear matches
+- Escalation to senior analyst if needed
+- Customer notification if account temporarily restricted
+
+================================================================================
+TRANSACTION MONITORING
+================================================================================
+
+Automated Rules:
+
+RULE 001: High-Value Transactions
+- Alert if single transaction >$10,000
+- Alert if cumulative daily transactions >$15,000
+- Review Required: Within 24 hours
+
+RULE 002: Velocity Anomalies
+- Alert if transaction count >100/day (baseline: 5/day)
+- Alert if significant increase vs. historical pattern
+- Review Required: Within 12 hours
+
+RULE 003: Geographic Anomalies
+- Alert if transaction in high-risk jurisdiction
+- Alert if location change >500 miles from recent activity
+- Review Required: Real-time (may block transaction)
+
+RULE 004: Structuring Detection
+- Alert if pattern of transactions just under $10K threshold
+- Alert if multiple sub-$10K deposits in short timeframe
+- Review Required: Within 4 hours
+
+RULE 005: Dormant Account Activity
+- Alert if dormant account (>90 days) suddenly active
+- Alert if large transaction after dormancy
+- Review Required: Within 24 hours
+
+RULE 006: Peer-to-Peer (P2P) Abuse
+- Alert if high volume of P2P transfers to new recipients
+- Alert if consistent round-number transfers
+- Review Required: Within 12 hours
+
+Risk Scoring:
+- Each transaction assigned risk score 0-100
+- Score >70: Manual review required
+- Score >90: Transaction blocked, urgent review
+
+================================================================================
+SUSPICIOUS ACTIVITY REPORTING (SAR)
+================================================================================
+
+SAR Filing Triggers:
+
+1. Transactions involving $5,000+ where money laundering suspected
+2. Structuring or evasion of reporting requirements
+3. Terrorist financing indicators
+4. Identity theft or fraud
+5. Computer intrusion affecting customer accounts
+
+SAR Filing Process:
+1. Compliance analyst documents suspicious activity
+2. Senior compliance officer reviews and approves
+3. File SAR with FinCEN within 30 days of detection
+4. NO customer notification (prohibited by law)
+5. Retain SAR and supporting documentation for 5 years
+
+SAR Statistics (2023):
+- Total SARs filed: 87
+- Average per month: 7.25
+- Top reasons: Suspected fraud (42%), Structuring (28%), Other (30%)
+
+================================================================================
+CURRENCY TRANSACTION REPORTING (CTR)
+================================================================================
+
+CTR Requirements:
+- File for cash transactions >$10,000
+- File for multiple cash transactions aggregating >$10,000/day
+- Deadline: 15 days after transaction
+- System: FinCEN BSA E-Filing System
+
+Note: Skyro currently does NOT accept cash deposits. This applies only to
+future cash handling features (ATM deposits, cash pickup, etc.)
+
+================================================================================
+CUSTOMER DUE DILIGENCE (CDD)
+================================================================================
+
+Standard CDD (All Customers):
+- Verify customer identity
+- Understand nature and purpose of account
+- Develop customer risk profile
+- Conduct ongoing monitoring
+
+Enhanced Due Diligence (EDD) Required For:
+- High-risk customers (PEPs, high-net-worth)
+- High-risk jurisdictions
+- Unusual account activity
+- Cash-intensive businesses (if applicable)
+- Non-face-to-face customers (international)
+
+EDD Procedures:
+- Additional document collection
+- Source of wealth verification
+- More frequent reviews (quarterly vs. annual)
+- Senior management approval required
+- Enhanced transaction monitoring
+
+================================================================================
+CUSTOMER RISK RATING
+================================================================================
+
+Risk Categories:
+
+LOW RISK (70% of customers):
+- Salaried employee
+- Domestic US resident
+- Low transaction volume (<$5K/month)
+- No PEP or adverse media
+- Standard review frequency: Annual
+
+MEDIUM RISK (25% of customers):
+- Self-employed or business owner
+- Moderate transaction volume ($5K-$25K/month)
+- Some international activity
+- Standard review frequency: Semi-annual
+
+HIGH RISK (5% of customers):
+- PEP or family member of PEP
+- High transaction volume (>$25K/month)
+- High-risk industry (cash-intensive, MSB, crypto)
+- Adverse media or previous suspicious activity
+- International transactions >25% of activity
+- Standard review frequency: Quarterly
+
+PROHIBITED:
+- Customer from OFAC sanctioned country
+- Customer on SDN list
+- Unlicensed money services business
+- Marijuana-related business (federal prohibition)
+- Adult content or gambling (policy decision)
+
+================================================================================
+RECORD RETENTION
+================================================================================
+
+Required Retention Periods:
+
+- Customer identification records: 5 years after account closure
+- Transaction records: 5 years from transaction date
+- SARs and supporting documentation: 5 years from filing
+- CTRs and supporting documentation: 5 years from filing
+- Account opening documents: 5 years after account closure
+- AML training records: 5 years from training date
+
+Storage Requirements:
+- Secure, encrypted storage
+- Backed up daily
+- Retrievable within 24 hours upon regulator request
+- Access logged and monitored
+
+================================================================================
+AML TRAINING
+================================================================================
+
+Required Training:
+
+NEW EMPLOYEES:
+- Complete within 30 days of hire
+- 2-hour comprehensive AML training
+- Role-specific training (compliance team: 8 hours)
+- Pass assessment (80% minimum score)
+
+ANNUAL TRAINING:
+- All employees: 1 hour refresher
+- Compliance team: 4 hours advanced training
+- Topics: New regulations, typologies, case studies
+
+SPECIALIZED TRAINING:
+- Customer service: Red flag identification
+- Fraud team: SAR filing procedures
+- Engineering: System controls and data security
+
+Training Provider: ACAMS (Association of Certified Anti-Money Laundering Specialists)
+
+Completion Rate Target: 100% within deadline
+
+================================================================================
+INDEPENDENT AML AUDIT
+================================================================================
+
+Annual Independent Review:
+
+- External audit firm (currently: Deloitte)
+- Comprehensive AML program assessment
+- Testing of controls and procedures
+- Sampling of transactions and alerts
+- SAR quality review
+- Report to Board of Directors
+
+Last Audit: December 2023
+Result: Satisfactory, 3 minor recommendations
+
+================================================================================
+REGULATORY REPORTING
+================================================================================
+
+Regular Reports to Regulators:
+
+QUARTERLY:
+- AML metrics dashboard to state regulator
+- SAR statistics (aggregate, no details)
+
+ANNUALLY:
+- Independent audit report
+- AML program certification
+- Beneficial ownership updates
+
+AD HOC:
+- Suspicious Activity Reports (within 30 days)
+- Subpoena responses (within specified timeframe)
+- Regulator inquiries (ASAP, usually 3-5 business days)
+
+================================================================================
+THIRD-PARTY VENDOR MANAGEMENT
+================================================================================
+
+Current AML/KYC Vendors:
+
+1. Alloy - Identity verification, OFAC screening
+2. Dow Jones - Sanctions and PEP screening, adverse media
+3. Middesk - Business verification (KYB)
+4. Plaid - Bank account verification
+5. NICE Actimize - Transaction monitoring (planned for Q2 2024)
+
+Vendor Due Diligence:
+- Initial assessment before onboarding
+- Annual SOC 2 Type II review
+- Quarterly performance metrics
+- Contract renewal due diligence
+
+================================================================================
+CONTACT INFORMATION
+================================================================================
+
+Compliance Team:
+- Chief Compliance Officer: Rachel Kim (rachel.kim@skyro.com)
+- AML Manager: David Lee (david.lee@skyro.com)
+- Compliance Analysts: compliance@skyro.com
+
+Regulatory Inquiries:
+- Email: regulatory@skyro.com
+- Phone: (415) 555-0199
+
+Emergency SAR Hotline: (415) 555-0150 (24/7)
+
+================================================================================
+DOCUMENT HISTORY
+================================================================================
+
+v2.1 - January 15, 2024 - Added business account KYC requirements
+v2.0 - October 1, 2023 - Major revision for new regulations
+v1.5 - June 12, 2023 - Updated OFAC screening procedures
+v1.0 - January 5, 2023 - Initial document creation
