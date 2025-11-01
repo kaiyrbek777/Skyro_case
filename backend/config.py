@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # Retrieval
     retrieval_top_k: int = 5
-    retrieval_similarity_threshold: float = 0.7
+    retrieval_similarity_threshold: float = 0.5  # Lowered from 0.7 for better recall
 
     class Config:
         env_file = ".env"
