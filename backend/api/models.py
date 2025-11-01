@@ -37,3 +37,5 @@ class HealthResponse(BaseModel):
     status: str
     database_connected: bool
     total_documents: int
+    unique_documents: Optional[int] = 0
+    document_types: Optional[Dict[str, int]] = {}

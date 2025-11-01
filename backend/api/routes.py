@@ -37,19 +37,23 @@ async def health_check():
         if vector_store is None:
             initialize_workflow()
 
-        doc_count = vector_store.get_document_count()
+        stats = vector_store.get_stats()
 
         return HealthResponse(
             status="healthy",
             database_connected=True,
-            total_documents=doc_count
+            total_documents=stats.get("total_chunks", 0),
+            unique_documents=stats.get("unique_documents", 0),
+            document_types=stats.get("document_types", {})
         )
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return HealthResponse(
             status="unhealthy",
             database_connected=False,
-            total_documents=0
+            total_documents=0,
+            unique_documents=0,
+            document_types={}
         )
 
 

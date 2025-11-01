@@ -67,7 +67,23 @@ def main():
         health = api_client.health_check()
         if health.get("status") == "healthy":
             st.success("✅ System Online")
-            st.metric("Documents Indexed", health.get("total_documents", 0))
+
+            # Show user-friendly document stats
+            unique_docs = health.get("unique_documents", 0)
+            doc_types = health.get("document_types", {})
+
+            st.metric("📚 Available Documents", unique_docs)
+
+            # Show document types breakdown if available
+            if doc_types:
+                st.caption("**Document Types:**")
+                for doc_type, count in doc_types.items():
+                    icon = "📝" if "confluence" in doc_type.lower() else "📄"
+                    if "meeting" in doc_type.lower():
+                        icon = "📅"
+                    elif "spec" in doc_type.lower():
+                        icon = "🔧"
+                    st.caption(f"{icon} {doc_type.title()}: {count}")
         else:
             st.error("❌ System Offline")
             st.write(health.get("message", "Unknown error"))

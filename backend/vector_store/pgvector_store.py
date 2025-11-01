@@ -152,6 +152,45 @@ class PgVectorStore:
             logger.error(f"Failed to get document count: {e}")
             return 0
 
+    def get_stats(self) -> Dict[str, Any]:
+        """Get database statistics including unique source documents"""
+        try:
+            with self.connection.cursor() as cursor:
+                # Total chunks
+                cursor.execute("SELECT COUNT(*) FROM documents")
+                total_chunks = cursor.fetchone()[0]
+
+                # Unique source documents
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT metadata->>'source')
+                    FROM documents
+                    WHERE metadata->>'source' IS NOT NULL
+                """)
+                unique_sources = cursor.fetchone()[0]
+
+                # Document types breakdown
+                cursor.execute("""
+                    SELECT metadata->>'type' as doc_type, COUNT(*) as count
+                    FROM documents
+                    WHERE metadata->>'type' IS NOT NULL
+                    GROUP BY metadata->>'type'
+                    ORDER BY count DESC
+                """)
+                doc_types = dict(cursor.fetchall())
+
+                return {
+                    "total_chunks": total_chunks,
+                    "unique_documents": unique_sources,
+                    "document_types": doc_types
+                }
+        except Exception as e:
+            logger.error(f"Failed to get stats: {e}")
+            return {
+                "total_chunks": 0,
+                "unique_documents": 0,
+                "document_types": {}
+            }
+
     def clear_all_documents(self):
         """Delete all documents from the database (use with caution!)"""
         query = "DELETE FROM documents"
