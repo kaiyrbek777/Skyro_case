@@ -42,29 +42,6 @@ class RAGNodes:
             similarity_threshold=settings.retrieval_similarity_threshold
         )
 
-        # Parent Document Retrieval: Get all chunks from matched sources
-        if settings.use_parent_document_retrieval and similar_docs:
-            logger.info("Using Parent Document Retrieval to get complete documents")
-
-            # Get unique source documents
-            unique_sources = set()
-            for doc in similar_docs:
-                source = doc.metadata.get("source")
-                if source:
-                    unique_sources.add(source)
-
-            logger.info(f"Found {len(unique_sources)} unique source documents")
-
-            # Retrieve all chunks from these sources
-            all_chunks = []
-            for source in unique_sources:
-                source_chunks = self.vector_store.get_chunks_by_source(source)
-                all_chunks.extend(source_chunks)
-
-            # Use all chunks instead of just similarity search results
-            similar_docs = all_chunks
-            logger.info(f"Retrieved {len(similar_docs)} total chunks (complete documents)")
-
         # Convert to dict format
         retrieved_docs = [
             {
@@ -75,7 +52,7 @@ class RAGNodes:
             for doc in similar_docs
         ]
 
-        logger.info(f"Final retrieved document count: {len(retrieved_docs)}")
+        logger.info(f"Retrieved {len(retrieved_docs)} documents")
 
         state["retrieved_docs"] = retrieved_docs
         return state
