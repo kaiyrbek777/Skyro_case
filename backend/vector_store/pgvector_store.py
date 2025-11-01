@@ -77,7 +77,7 @@ class PgVectorStore:
         self,
         query_embedding: List[float],
         top_k: int = 5,
-        similarity_threshold: float = 0.7,
+        similarity_threshold: float = 0.2,
         metadata_filter: Optional[Dict[str, Any]] = None
     ) -> List[Document]:
         """
