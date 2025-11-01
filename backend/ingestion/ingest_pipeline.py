@@ -7,6 +7,7 @@ from ingestion.chunker import DocumentChunker
 from ingestion.embedder import Embedder
 from vector_store.pgvector_store import PgVectorStore, Document
 from utils.logger import logger
+from config import settings
 
 
 class IngestionPipeline:
@@ -23,6 +24,13 @@ class IngestionPipeline:
         logger.info("=" * 60)
         logger.info("Starting document ingestion pipeline")
         logger.info("=" * 60)
+
+        # Step 0: Clear database if configured
+        if settings.clear_db_before_ingestion:
+            logger.info("Step 0: Clearing existing documents from database...")
+            old_count = self.vector_store.get_document_count()
+            self.vector_store.clear_all_documents()
+            logger.info(f"  - Cleared {old_count} existing chunks")
 
         # Step 1: Load documents
         logger.info("Step 1: Loading documents...")
