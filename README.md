@@ -121,6 +121,7 @@ Skyro is exploring how to improve internal knowledge access using AI. This proto
 ✅ **Vector Search** using pgvector (HNSW indexing)
 ✅ **Semantic Embeddings** via OpenAI `text-embedding-3-small`
 ✅ **LLM Generation** via OpenAI GPT-4-turbo
+✅ **Multi-Format Support** - Markdown, TXT, JSON, **PDF** documents
 ✅ **Automatic Document Ingestion** on container startup
 ✅ **Interactive Chat UI** with Streamlit
 ✅ **Source Attribution** - shows which documents were used
@@ -156,6 +157,8 @@ Skyro is exploring how to improve internal knowledge access using AI. This proto
 ### Prerequisites
 - Docker & Docker Compose installed
 - OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+
+**📖 New to this? Check out [SETUP_GUIDE.md](SETUP_GUIDE.md) for step-by-step beginner instructions!**
 
 ### 1. Clone the Repository
 ```bash
@@ -602,6 +605,55 @@ docker-compose exec backend python -c "from ingestion.ingest_pipeline import run
 # Check pgvector index
 docker-compose exec postgres psql -U skyro -d skyro_knowledge -c "\d documents"
 ```
+
+---
+
+## Adding Your Own Documents
+
+Want to search through your own documents?
+
+### Supported Formats
+- ✅ **Markdown** (.md)
+- ✅ **Plain Text** (.txt)
+- ✅ **JSON** (.json)
+- ✅ **PDF** (.pdf) - automatically extracts text
+
+### How to Add Documents
+
+1. **Place files in the documents folder:**
+   ```bash
+   # Confluence-style docs
+   cp your-doc.md data/documents/confluence/
+
+   # Meeting notes
+   cp meeting-notes.pdf data/documents/meetings/
+
+   # Product specs
+   cp spec.txt data/documents/product_specs/
+   ```
+
+2. **Restart the backend:**
+   ```bash
+   docker-compose restart backend
+   ```
+
+3. **Wait for ingestion** (check logs):
+   ```bash
+   docker-compose logs -f backend
+   # Look for: "✓ Ingestion complete!"
+   ```
+
+4. **Start searching!**
+   Open http://localhost:8501 and ask questions about your new documents.
+
+**📄 For detailed instructions on adding PDFs and Word docs, see [HOW_TO_ADD_PDF_WORD.md](HOW_TO_ADD_PDF_WORD.md)**
+
+---
+
+## Helpful Guides
+
+- **🚀 [SETUP_GUIDE.md](SETUP_GUIDE.md)** - Step-by-step setup for beginners
+- **📄 [HOW_TO_ADD_PDF_WORD.md](HOW_TO_ADD_PDF_WORD.md)** - Guide for adding PDF and Word documents
 
 ---
 

@@ -7,9 +7,16 @@ from typing import List, Dict, Any
 import json
 from utils.logger import logger
 
+try:
+    from pypdf import PdfReader
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+    logger.warning("pypdf not installed, PDF support disabled")
+
 
 class DocumentLoader:
-    """Load documents from various file formats"""
+    """Load documents from various file formats (MD, TXT, JSON, PDF)"""
 
     def __init__(self, documents_dir: str = "/app/data/documents"):
         self.documents_dir = Path(documents_dir)
@@ -44,6 +51,11 @@ class DocumentLoader:
     def _is_supported_format(self, file_path: Path) -> bool:
         """Check if file format is supported"""
         supported_extensions = {".md", ".txt", ".json"}
+
+        # Add PDF if available
+        if PDF_AVAILABLE:
+            supported_extensions.add(".pdf")
+
         return file_path.suffix.lower() in supported_extensions
 
     def _load_file(self, file_path: Path) -> Dict[str, Any]:
@@ -57,6 +69,8 @@ class DocumentLoader:
         # Load content based on file type
         if file_path.suffix == ".json":
             content = self._load_json(file_path)
+        elif file_path.suffix == ".pdf":
+            content = self._load_pdf(file_path)
         else:
             content = self._load_text(file_path)
 
@@ -84,3 +98,27 @@ class DocumentLoader:
             data = json.load(f)
             # Convert JSON to formatted string
             return json.dumps(data, indent=2)
+
+    def _load_pdf(self, file_path: Path) -> str:
+        """Load PDF file and extract text"""
+        if not PDF_AVAILABLE:
+            logger.error(f"Cannot load PDF {file_path}: pypdf not installed")
+            return ""
+
+        try:
+            reader = PdfReader(file_path)
+            text_parts = []
+
+            # Extract text from all pages
+            for page_num, page in enumerate(reader.pages, 1):
+                page_text = page.extract_text()
+                if page_text.strip():
+                    text_parts.append(f"[Page {page_num}]\n{page_text}")
+
+            content = "\n\n".join(text_parts)
+            logger.debug(f"Extracted {len(reader.pages)} pages from {file_path.name}")
+            return content
+
+        except Exception as e:
+            logger.error(f"Failed to extract text from PDF {file_path}: {e}")
+            return ""
