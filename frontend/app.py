@@ -74,7 +74,6 @@ def main():
 
         st.divider()
 
-        st.header("About")
         st.info("""
         This AI assistant helps you quickly find information from:
 
@@ -82,11 +81,6 @@ def main():
         - 📅 Meeting notes
         - 📄 Product specs
         - 🔧 Technical docs
-
-        **Powered by:**
-        - LangGraph for workflow
-        - pgvector for search
-        - OpenAI for AI
         """)
 
         st.divider()
