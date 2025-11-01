@@ -32,10 +32,16 @@ class FeedbackRequest(BaseModel):
     comment: Optional[str] = None
 
 
+class DocumentTypeStats(BaseModel):
+    """Statistics for a document type"""
+    documents: int
+    chunks: int
+
+
 class HealthResponse(BaseModel):
     """Health check response"""
     status: str
     database_connected: bool
     total_documents: int
     unique_documents: Optional[int] = 0
-    document_types: Optional[Dict[str, int]] = {}
+    document_types: Optional[Dict[str, DocumentTypeStats]] = {}

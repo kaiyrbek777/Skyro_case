@@ -7,6 +7,7 @@ from api.models import (
     QueryResponse,
     FeedbackRequest,
     HealthResponse,
+    DocumentTypeStats,
     Source
 )
 from graph.workflow import RAGWorkflow
@@ -39,12 +40,20 @@ async def health_check():
 
         stats = vector_store.get_stats()
 
+        # Format document_types as DocumentTypeStats objects
+        doc_types_formatted = {}
+        for doc_type, counts in stats.get("document_types", {}).items():
+            doc_types_formatted[doc_type] = DocumentTypeStats(
+                documents=counts["documents"],
+                chunks=counts["chunks"]
+            )
+
         return HealthResponse(
             status="healthy",
             database_connected=True,
             total_documents=stats.get("total_chunks", 0),
             unique_documents=stats.get("unique_documents", 0),
-            document_types=stats.get("document_types", {})
+            document_types=doc_types_formatted
         )
     except Exception as e:
         logger.error(f"Health check failed: {e}")

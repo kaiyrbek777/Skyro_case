@@ -168,15 +168,26 @@ class PgVectorStore:
                 """)
                 unique_sources = cursor.fetchone()[0]
 
-                # Document types breakdown
+                # Document types breakdown with both doc count and chunk count
                 cursor.execute("""
-                    SELECT metadata->>'type' as doc_type, COUNT(*) as count
+                    SELECT
+                        metadata->>'type' as doc_type,
+                        COUNT(DISTINCT metadata->>'source') as doc_count,
+                        COUNT(*) as chunk_count
                     FROM documents
                     WHERE metadata->>'type' IS NOT NULL
                     GROUP BY metadata->>'type'
-                    ORDER BY count DESC
+                    ORDER BY chunk_count DESC
                 """)
-                doc_types = dict(cursor.fetchall())
+                doc_types_raw = cursor.fetchall()
+
+                # Format as dict with both counts
+                doc_types = {}
+                for doc_type, doc_count, chunk_count in doc_types_raw:
+                    doc_types[doc_type] = {
+                        "documents": doc_count,
+                        "chunks": chunk_count
+                    }
 
                 return {
                     "total_chunks": total_chunks,

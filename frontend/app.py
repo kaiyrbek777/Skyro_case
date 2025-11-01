@@ -77,13 +77,20 @@ def main():
             # Show document types breakdown if available
             if doc_types:
                 st.caption("**Document Types:**")
-                for doc_type, count in doc_types.items():
+                for doc_type, stats in doc_types.items():
                     icon = "📝" if "confluence" in doc_type.lower() else "📄"
                     if "meeting" in doc_type.lower():
                         icon = "📅"
                     elif "spec" in doc_type.lower():
                         icon = "🔧"
-                    st.caption(f"{icon} {doc_type.title()}: {count}")
+
+                    # Get documents and chunks count
+                    doc_count = stats.get("documents", 0)
+                    chunk_count = stats.get("chunks", 0)
+
+                    # Format display
+                    st.caption(f"{icon} **{doc_type.replace('_', ' ').title()}:** {doc_count} docs")
+                    st.caption(f"   ↳ {chunk_count} searchable chunks")
         else:
             st.error("❌ System Offline")
             st.write(health.get("message", "Unknown error"))
