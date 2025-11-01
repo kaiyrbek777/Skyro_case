@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # LLM
     llm_provider: str = "openai"
-    llm_model: str = "gpt-4-turbo-preview"
+    llm_model: str = "gpt-4o"
     llm_temperature: float = 0.1
     llm_max_tokens: int = 2000
 
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # Retrieval
     retrieval_top_k: int = 5
-    retrieval_similarity_threshold: float = 0.5  # Lowered from 0.7 for better recall
+    retrieval_similarity_threshold: float = 0.2
 
     class Config:
         env_file = ".env"
