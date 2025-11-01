@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     # Retrieval
     retrieval_top_k: int = 5
     retrieval_similarity_threshold: float = 0.2
+    use_parent_document_retrieval: bool = True  # Retrieve all chunks from matched sources
 
     class Config:
         env_file = ".env"

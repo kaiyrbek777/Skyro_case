@@ -140,6 +140,46 @@ class PgVectorStore:
             logger.error(f"Similarity search failed: {e}")
             raise
 
+    def get_chunks_by_source(self, source_name: str) -> List[Document]:
+        """
+        Get all chunks from a specific source document
+
+        Args:
+            source_name: Source document name
+
+        Returns:
+            List of all chunks from that source
+        """
+        query = """
+            SELECT id, content, metadata
+            FROM documents
+            WHERE metadata->>'source' = %s
+            ORDER BY (metadata->>'chunk_index')::int
+        """
+
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query, (source_name,))
+                results = cursor.fetchall()
+
+                documents = []
+                for row in results:
+                    doc_id, content, metadata = row
+                    documents.append(
+                        Document(
+                            id=doc_id,
+                            content=content,
+                            metadata=metadata
+                        )
+                    )
+
+                logger.info(f"Found {len(documents)} chunks for source: {source_name}")
+                return documents
+
+        except Exception as e:
+            logger.error(f"Failed to get chunks by source: {e}")
+            return []
+
     def get_document_count(self) -> int:
         """Get total number of documents in the database"""
         query = "SELECT COUNT(*) FROM documents"
