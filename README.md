@@ -46,7 +46,7 @@ A production-ready RAG (Retrieval-Augmented Generation) system designed to help 
 │  │  └─ HNSW Index                               │       │
 │  └──────────────────────────────────────────────┘       │
 └─────────────────────────────────────────────────────────┘
-
+```
 ### Technology Stack
 
 | Component | Technology |
