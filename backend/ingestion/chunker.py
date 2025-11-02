@@ -40,11 +40,8 @@ class DocumentChunker:
         for doc in documents:
             content = doc["content"]
             metadata = doc["metadata"]
-
-            # Split the content
             chunks = self.text_splitter.split_text(content)
 
-            # Create chunk documents with metadata
             for i, chunk_text in enumerate(chunks):
                 chunk_metadata = metadata.copy()
                 chunk_metadata["chunk_index"] = i

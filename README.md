@@ -1,660 +1,426 @@
-# Skyro AI Knowledge Assistant 🧠
+# Skyro AI Knowledge Assistant
 
-**AI-Powered Internal Knowledge Access System**
-
-A production-ready RAG (Retrieval-Augmented Generation) system built with **LangGraph**, **pgvector**, and **OpenAI** to help fintech employees quickly find information across internal documents.
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [How It Works](#how-it-works)
-- [Example Questions](#example-questions)
-- [Scaling to Production](#scaling-to-production)
-- [Integration Examples](#integration-examples)
-- [Team Rollout Strategy](#team-rollout-strategy)
-- [Design Decisions & Trade-offs](#design-decisions--trade-offs)
-- [Future Enhancements](#future-enhancements)
-- [Troubleshooting](#troubleshooting)
-
----
+AI-powered internal knowledge access system built with LangGraph, pgvector, and OpenAI.
 
 ## Overview
 
-Skyro is exploring how to improve internal knowledge access using AI. This prototype demonstrates an AI-powered assistant that:
+A production-ready RAG (Retrieval-Augmented Generation) system designed to help employees quickly find information across internal documents.
 
-- 📚 **Indexes internal documents** (Confluence, meetings, product specs)
-- 🔍 **Retrieves relevant context** using semantic search (pgvector)
-- 🤖 **Generates accurate answers** using LLMs (OpenAI GPT-4)
-- 📊 **Tracks user feedback** to improve over time
-- 🚀 **Runs out-of-the-box** with Docker Compose
-
-**Key Metrics:**
-- **15 sample documents** covering fintech use cases
-- **Sub-second search** with pgvector HNSW indexing
-- **High retrieval accuracy** with semantic search
-- **100% automated ingestion** on startup
-
----
+**Key Features:**
+- Semantic search using pgvector with HNSW indexing
+- LangGraph workflow orchestration
+- Multi-format document support (Markdown, TXT, JSON, PDF)
+- Interactive chat interface
+- Source attribution and feedback system
 
 ## Architecture
 
-### System Architecture Diagram
+### System Components
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                          USER INTERFACE                              │
-│                   Streamlit Chat UI (Port 8501)                      │
-└────────────────────────────┬─────────────────────────────────────────┘
-                             │ HTTP
-                             ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                        BACKEND API                                   │
-│                  FastAPI Server (Port 8000)                          │
-│                                                                      │
-│  ┌────────────────────────────────────────────────────────────┐    │
-│  │                 LangGraph Workflow                         │    │
-│  │                                                            │    │
-│  │  ┌──────────────┐      ┌──────────────┐                  │    │
-│  │  │   Retrieve   │  →   │   Evaluate   │                  │    │
-│  │  │  Documents   │      │   Context    │                  │    │
-│  │  └──────────────┘      └──────────────┘                  │    │
-│  │         │                      │                          │    │
-│  │         ▼                      ▼                          │    │
-│  │  ┌──────────────┐      ┌──────────────┐                  │    │
-│  │  │   Format     │  →   │   Generate   │                  │    │
-│  │  │   Context    │      │    Answer    │                  │    │
-│  │  └──────────────┘      └──────────────┘                  │    │
-│  └────────────────────────────────────────────────────────────┘    │
-└────────────────────────────┬─────────────────────────────────────────┘
-                             │
-                             ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                    VECTOR DATABASE                                   │
-│                PostgreSQL + pgvector                                 │
-│                                                                      │
-│  ┌─────────────────────────────────────────────────────────┐       │
-│  │  Documents Table                                        │       │
-│  │  ├─ content (text)                                      │       │
-│  │  ├─ embedding (vector[1536])                            │       │
-│  │  ├─ metadata (jsonb)                                    │       │
-│  │  └─ HNSW Index for fast similarity search              │       │
-│  └─────────────────────────────────────────────────────────┘       │
-└──────────────────────────────────────────────────────────────────────┘
-                             ▲
-                             │
-                  ┌──────────┴──────────┐
-                  │                     │
-         ┌────────▼────────┐   ┌───────▼────────┐
-         │  OpenAI API     │   │  Document      │
-         │  Embeddings     │   │  Ingestion     │
-         │  (startup)      │   │  Pipeline      │
-         └─────────────────┘   └────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    User Interface                        │
+│              Streamlit Chat UI (Port 8501)              │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│                    Backend API                           │
+│              FastAPI Server (Port 8000)                 │
+│                                                          │
+│  ┌────────────────────────────────────────────────┐    │
+│  │            LangGraph Workflow                  │    │
+│  │  Retrieve → Evaluate → Format → Generate      │    │
+│  └────────────────────────────────────────────────┘    │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│                 Vector Database                          │
+│              PostgreSQL + pgvector                      │
+│  ┌──────────────────────────────────────────────┐      │
+│  │  Documents Table                             │      │
+│  │  ├─ content (text)                           │      │
+│  │  ├─ embedding (vector[1536])                 │      │
+│  │  ├─ metadata (jsonb)                         │      │
+│  │  └─ HNSW Index                               │      │
+│  └──────────────────────────────────────────────┘      │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Data Flow
+### Technology Stack
 
-```
-1. INGESTION (Startup)
-   Document Files → DocumentLoader → Chunker → Embedder → pgvector
-
-2. QUERY (Runtime)
-   User Question → Embed Query → Vector Search → Retrieve Top-K Docs
-   → LangGraph (Evaluate + Format + Generate) → Return Answer + Sources
-
-3. FEEDBACK (Optional)
-   User Rating → Store in feedback table → Future improvements
-```
-
----
-
-## Features
-
-### Core Functionality
-✅ **RAG Pipeline** with LangGraph for orchestration
-✅ **Vector Search** using pgvector (HNSW indexing)
-✅ **Semantic Embeddings** via OpenAI `text-embedding-3-small`
-✅ **LLM Generation** via OpenAI GPT-4-turbo
-✅ **Multi-Format Support** - Markdown, TXT, JSON, **PDF** documents
-✅ **Automatic Document Ingestion** on container startup
-✅ **Interactive Chat UI** with Streamlit
-✅ **Source Attribution** - shows which documents were used
-✅ **Feedback System** - thumbs up/down for answers
-✅ **Health Monitoring** - API health checks and metrics
-
-### Technical Highlights
-- **Modular Design** - Easy to swap LLM providers or vector stores
-- **Production-Ready** - Docker Compose, health checks, logging
-- **Scalable** - Async processing, connection pooling
-- **Secure** - Environment variables, input validation
-- **Observable** - Structured logging, metrics
-
----
-
-## Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Orchestration** | LangGraph | RAG workflow management |
-| **Vector DB** | pgvector (PostgreSQL) | Semantic search & storage |
-| **Embeddings** | OpenAI text-embedding-3-small | Document & query vectorization |
-| **LLM** | OpenAI GPT-4-turbo | Answer generation |
-| **Backend** | FastAPI | REST API server |
-| **Frontend** | Streamlit | Interactive chat UI |
-| **Container** | Docker Compose | Local development & deployment |
-| **Language** | Python 3.11 | Primary programming language |
-
----
+| Component | Technology |
+|-----------|-----------|
+| Workflow Orchestration | LangGraph |
+| Vector Database | PostgreSQL + pgvector |
+| Embeddings | OpenAI text-embedding-3-small (1536-dim) |
+| LLM | OpenAI GPT-4o |
+| Backend API | FastAPI |
+| Frontend | Streamlit |
+| Container Orchestration | Docker Compose |
+| Language | Python 3.11 |
 
 ## Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose installed
+
+- Docker and Docker Compose installed
 - OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
 
-**📖 New to this? Check out [SETUP_GUIDE.md](SETUP_GUIDE.md) for step-by-step beginner instructions!**
+### Installation
 
-### 1. Clone the Repository
+1. **Clone the repository**
 ```bash
 git clone https://github.com/kaiyrbek777/Skyro_case.git
 cd Skyro_case
 ```
 
-### 2. Configure Environment Variables
+2. **Configure environment variables**
 ```bash
 cp .env.example .env
 nano .env  # Add your OPENAI_API_KEY
 ```
 
-**Required Configuration:**
-```bash
+Required:
+```
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-### 3. Start All Services
+3. **Start services**
 ```bash
 docker-compose up -d
 ```
 
-**This will:**
-1. Start PostgreSQL with pgvector extension
-2. Initialize database schema
-3. Start backend (FastAPI)
-4. Automatically ingest 15 sample documents
-5. Start frontend (Streamlit UI)
+This will:
+- Start PostgreSQL with pgvector extension
+- Initialize database schema
+- Start backend API server
+- Ingest sample documents automatically
+- Start Streamlit web interface
 
-### 4. Access the Application
+4. **Access the application**
 
-**Web UI:**
-```
-http://localhost:8501
-```
-
-**API Documentation:**
-```
-http://localhost:8000/docs
-```
-
-**Health Check:**
-```bash
-curl http://localhost:8000/health
-```
-
-### 5. Try Example Questions
-
-Ask questions like:
-- "What are our Q1 2024 OKRs?"
-- "How does our fraud detection system work?"
-- "What are the API rate limits?"
-- "Tell me about the customer onboarding flow"
-
----
+Web UI: http://localhost:8501
+API Docs: http://localhost:8000/docs
+Health Check: http://localhost:8000/health
 
 ## Project Structure
 
 ```
 skyro-knowledge-assistant/
-├── docker-compose.yml           # Container orchestration
-├── .env.example                 # Environment template
-├── README.md                    # This file
+├── docker-compose.yml
+├── .env.example
+├── README.md
 │
 ├── database/
-│   └── init.sql                 # PostgreSQL schema & pgvector setup
+│   └── init.sql                 # PostgreSQL schema
 │
 ├── data/
-│   └── documents/               # Sample fintech documents (15 total)
-│       ├── confluence/          # Internal wiki docs (6 files)
-│       ├── meetings/            # Meeting notes (3 files)
-│       └── product_specs/       # Product specifications (6 files)
+│   └── documents/               # Sample documents
+│       ├── confluence/          # Wiki docs
+│       ├── meetings/            # Meeting notes
+│       └── product_specs/       # Product specifications
 │
-├── backend/                     # FastAPI + LangGraph backend
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   ├── main.py                  # FastAPI application entry
-│   ├── config.py                # Settings management
+├── backend/
+│   ├── main.py                  # FastAPI application
+│   ├── config.py                # Configuration
 │   │
-│   ├── ingestion/               # Document processing pipeline
-│   │   ├── document_loader.py   # Load various file formats
-│   │   ├── chunker.py           # Split documents into chunks
-│   │   ├── embedder.py          # Generate OpenAI embeddings
-│   │   └── ingest_pipeline.py   # Orchestrate ingestion
+│   ├── ingestion/               # Document processing
+│   │   ├── document_loader.py
+│   │   ├── chunker.py
+│   │   ├── embedder.py
+│   │   └── ingest_pipeline.py
 │   │
-│   ├── vector_store/            # pgvector integration
-│   │   └── pgvector_store.py    # Vector search & storage
+│   ├── vector_store/
+│   │   └── pgvector_store.py    # Vector operations
 │   │
-│   ├── graph/                   # LangGraph RAG workflow
-│   │   ├── state.py             # Graph state definition
-│   │   ├── nodes.py             # Workflow nodes
-│   │   └── workflow.py          # Graph assembly
+│   ├── graph/                   # LangGraph workflow
+│   │   ├── state.py
+│   │   ├── nodes.py
+│   │   └── workflow.py
 │   │
-│   ├── api/                     # REST API
-│   │   ├── models.py            # Pydantic request/response models
-│   │   └── routes.py            # API endpoints
-│   │
-│   └── utils/
-│       └── logger.py            # Logging configuration
+│   └── api/
+│       ├── models.py
+│       └── routes.py
 │
-└── frontend/                    # Streamlit chat UI
-    ├── Dockerfile
-    ├── requirements.txt
-    ├── app.py                   # Main Streamlit application
+└── frontend/
+    ├── app.py                   # Streamlit application
     └── utils/
-        └── api_client.py        # Backend API client
+        └── api_client.py
 ```
-
----
 
 ## How It Works
 
-### 1. Document Ingestion (Startup)
+### Document Ingestion
 
-```python
-# Automatic process when backend starts
-DocumentLoader().load_all_documents()
-  → DocumentChunker().chunk_documents()  # 800 char chunks, 200 overlap
-  → Embedder().embed_texts()             # OpenAI text-embedding-3-small
-  → PgVectorStore().add_documents()      # Store in PostgreSQL
+```
+Documents → Load → Chunk (2000 chars, 400 overlap)
+         → Embed (OpenAI) → Store in pgvector
 ```
 
-**Result:** 15 documents → ~127 chunks → Indexed in pgvector
+### Query Processing
 
-### 2. Query Processing (Runtime)
-
-```python
-# LangGraph workflow execution
-User Question
-  → retrieve_documents()          # Vector similarity search
-  → evaluate_context()            # Check if context is sufficient
-  → format_context()              # Prepare context for LLM
-  → generate_answer()             # GPT-4 generates response
-  → Return {answer, sources}
+```
+User Question → Embed → Vector Search → Retrieve Top-K
+             → LangGraph Workflow → Generate Answer
 ```
 
-### 3. LangGraph Workflow Details
+### LangGraph Workflow
 
-**Node 1: Retrieve Documents**
-- Embed user query with OpenAI
-- Perform cosine similarity search in pgvector
-- Return top-5 most relevant chunks
+1. **Retrieve Documents**: Semantic search in pgvector (top-5)
+2. **Evaluate Context**: Check relevance scores
+3. **Format Context**: Structure documents for LLM
+4. **Generate Answer**: GPT-4o generates response with sources
 
-**Node 2: Evaluate Context**
-- Check average similarity score
-- Determine if context is sufficient (threshold: 0.75)
-- Can trigger query reformulation (simplified in v1.0)
+## Configuration
 
-**Node 3: Format Context**
-- Combine retrieved chunks
-- Add metadata (source, type, relevance)
-- Structure for LLM consumption
+### Environment Variables
 
-**Node 4: Generate Answer**
-- Send context + question to GPT-4
-- System prompt: Act as Skyro internal assistant
-- Return answer with source citations
+```bash
+# Required
+OPENAI_API_KEY=sk-...
 
----
+# Optional - Database
+DATABASE_URL=postgresql://skyro:skyro_secure_pass@postgres:5432/skyro_knowledge
 
-## Example Questions
-
-The system can answer questions across various categories:
-
-### Strategy & Planning
-- "What are our Q1 2024 OKRs for the growth team?"
-- "What features are planned for Q2 2024 roadmap?"
-
-### Technical Documentation
-- "How does our payment gateway integration work?"
-- "What are the API rate limiting policies?"
-- "Explain our fraud detection system architecture"
-
-### Processes & Workflows
-- "What is the customer onboarding flow?"
-- "How do we handle KYC/AML compliance?"
-- "What happened in the security incident postmortem?"
-
-### Product Features
-- "What features are in the mobile app?"
-- "How does the savings account product work?"
-
-### Operational
-- "What is our infrastructure architecture?"
-- "How do we run A/B tests?"
-
----
-
-## Scaling to Production
-
-### Architecture Changes Needed
-
-**1. Scalability**
-```
-Current:  Single container backend
-Future:   Kubernetes deployment with auto-scaling
-
-- Horizontal scaling: 10-100 backend pods
-- Load balancer: NGINX or Kong API Gateway
-- pgvector: Use managed service (AWS RDS with pgvector)
-- Caching layer: Redis for frequent queries
+# Optional - Models
+EMBEDDING_MODEL=text-embedding-3-small
+LLM_MODEL=gpt-4o
+LLM_TEMPERATURE=0.1
 ```
 
-**2. Performance Optimization**
-```
-- Batch embedding generation during ingestion
-- Async processing for long-running queries
-- CDN for frontend assets
-- Database read replicas for search queries
-```
+### Backend Settings
 
-**3. Monitoring & Observability**
-```
-Tools:
-- Prometheus + Grafana for metrics
-- ELK Stack for centralized logging
-- Sentry for error tracking
-- OpenTelemetry for distributed tracing
+Located in `backend/config.py`:
 
-Metrics:
-- Query latency (p50, p95, p99)
-- Retrieval accuracy
-- User feedback scores
-- LLM API costs
-```
+- `chunk_size`: 2000 characters
+- `chunk_overlap`: 400 characters
+- `retrieval_top_k`: 5 documents
+- `retrieval_similarity_threshold`: 0.2
+- `clear_db_before_ingestion`: True
 
-**4. Security Enhancements**
-```
-- Role-based access control (RBAC)
-- Document-level permissions
-- Audit logging for all queries
-- Rate limiting per user
-- API authentication (OAuth 2.0)
-```
+## Adding Documents
 
-**5. Cost Optimization**
-```
-- Use cheaper embeddings for large-scale (e.g., open-source models)
-- Cache expensive LLM calls
-- Implement tiered LLM routing (GPT-4 for complex, GPT-3.5 for simple)
-- Batch processing for non-real-time indexing
+### Supported Formats
+
+- Markdown (.md)
+- Plain Text (.txt)
+- JSON (.json)
+- PDF (.pdf)
+
+### Steps
+
+1. Place files in `data/documents/` subdirectories:
+   - `confluence/` - Wiki pages
+   - `meetings/` - Meeting notes
+   - `product_specs/` - Technical specs
+
+2. Restart backend:
+```bash
+docker-compose restart backend
 ```
 
----
-
-## Integration Examples
-
-### Slack Bot Integration
-
-```python
-from slack_bolt import App
-from skyro_api_client import SkyroKnowledgeClient
-
-app = App(token=SLACK_BOT_TOKEN)
-skyro = SkyroKnowledgeClient(base_url="http://backend:8000")
-
-@app.command("/ask-skyro")
-def handle_ask_command(ack, command, respond):
-    ack()
-    question = command['text']
-    result = skyro.query(question)
-
-    blocks = [{
-        "type": "section",
-        "text": {"type": "mrkdwn", "text": f"*Answer:*\n{result['answer']}"}
-    }]
-
-    respond(blocks=blocks)
+3. Wait for ingestion (check logs):
+```bash
+docker-compose logs -f backend
 ```
 
-### Web UI Integration (React)
+4. Documents are now searchable via the UI
 
-```javascript
-import React, { useState } from 'react';
-import axios from 'axios';
+## API Reference
 
-function KnowledgeSearch() {
-  const [question, setQuestion] = useState('');
-  const [result, setResult] = useState(null);
+### Query Endpoint
 
-  const handleSearch = async () => {
-    const response = await axios.post('http://backend:8000/api/v1/query', {
-      question: question
-    });
-    setResult(response.data);
-  };
+```bash
+POST /api/v1/query
+Content-Type: application/json
 
-  return (
-    <div>
-      <input
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-        placeholder="Ask a question..."
-      />
-      <button onClick={handleSearch}>Search</button>
-      {result && <p>{result.answer}</p>}
-    </div>
-  );
+{
+  "question": "What are the API rate limits?"
+}
+
+Response:
+{
+  "question": "What are the API rate limits?",
+  "answer": "...",
+  "sources": [
+    {
+      "source": "api-rate-limiting-policy.md",
+      "type": "confluence",
+      "relevance": "0.89"
+    }
+  ]
 }
 ```
 
----
+### Health Check
 
-## Team Rollout Strategy
+```bash
+GET /health
 
-### Phase 1: Internal Alpha (Weeks 1-2)
-**Audience:** 10-15 early adopters from engineering & product
-**Goal:** Validate core functionality, gather initial feedback
+Response:
+{
+  "status": "healthy",
+  "database_connected": true,
+  "total_documents": 66,
+  "unique_documents": 14,
+  "document_types": {
+    "confluence": {"documents": 7, "chunks": 30},
+    "product_specs": {"documents": 4, "chunks": 22},
+    "meetings": {"documents": 3, "chunks": 14}
+  }
+}
+```
 
-**Activities:**
-- Deploy to internal staging environment
-- Provide training session (30 min demo)
-- Create feedback channel (#skyro-assistant-feedback)
-- Track usage metrics & iterate
+### Feedback Endpoint
 
-**Success Criteria:**
-- 80% positive feedback
-- <5% error rate
-- 50+ queries per day
+```bash
+POST /api/v1/feedback
 
-### Phase 2: Private Beta (Weeks 3-6)
-**Audience:** 50-100 users across departments
-**Goal:** Test scalability, expand document coverage
+{
+  "query": "...",
+  "answer": "...",
+  "helpful": true,
+  "comment": "Great answer!"
+}
+```
 
-**Activities:**
-- Add more document sources (Jira, GitHub, emails)
-- Implement department-specific access controls
-- Integrate with Slack (slash command)
-- Weekly office hours for Q&A
+## Scaling Considerations
 
-**Success Criteria:**
-- 200+ queries per day
-- 70% find answers without escalation
-- <2 second average response time
+### Performance Optimization
 
-### Phase 3: Company-Wide Rollout (Weeks 7-10)
-**Audience:** All employees
-**Goal:** Become primary internal knowledge tool
+- Use database read replicas for vector search
+- Implement caching layer (Redis) for frequent queries
+- Batch embedding generation during ingestion
+- Add connection pooling for database
 
-**Activities:**
-- Launch announcement (all-hands meeting)
-- Department-specific onboarding sessions
-- Create help documentation & video tutorials
-- 24/7 monitoring & on-call rotation
+### Deployment
 
-**Success Criteria:**
-- 60% monthly active users
-- 1000+ queries per day
-- Positive NPS score (>40)
-- Reduce support tickets by 30%
+- Kubernetes for auto-scaling
+- Managed PostgreSQL with pgvector (AWS RDS, GCP Cloud SQL)
+- Load balancing (NGINX, Kong)
+- CDN for frontend assets
 
----
+### Monitoring
 
-## Design Decisions & Trade-offs
+- Prometheus + Grafana for metrics
+- ELK stack for centralized logging
+- Sentry for error tracking
+- Track: query latency, retrieval accuracy, LLM costs
 
-### Why LangGraph?
-**Pros:**
-- ✅ Explicit workflow control (no black box)
-- ✅ Easy to debug and trace
-- ✅ Conditional logic support
-- ✅ Built for production (LangChain ecosystem)
+### Security
 
-**Cons:**
-- ❌ Newer framework (smaller community)
+- Implement RBAC (role-based access control)
+- Add document-level permissions
+- API authentication (OAuth 2.0)
+- Rate limiting per user
+- Audit logging
 
-**Alternative Considered:** LlamaIndex (more RAG-focused but less flexible)
+## Design Decisions
 
-### Why pgvector?
-**Pros:**
-- ✅ Production-ready (PostgreSQL extension)
-- ✅ ACID transactions
-- ✅ SQL + vector search in one DB
-- ✅ Cost-effective (no separate vector DB)
+### LangGraph
 
-**Cons:**
-- ❌ Not as fast as specialized vector DBs (Pinecone, Weaviate)
+**Advantages:**
+- Explicit workflow control
+- Easy debugging and tracing
+- Conditional logic support
+- Production-ready framework
 
-**Alternative Considered:** Pinecone (faster but more expensive, vendor lock-in)
+**Trade-off:** Newer framework with smaller community
 
-### Why OpenAI?
-**Pros:**
-- ✅ Best-in-class embeddings & LLM quality
-- ✅ Fast response times
-- ✅ Simple API
+### pgvector
 
-**Cons:**
-- ❌ Cost (can be expensive at scale)
-- ❌ Data sent to third party (privacy concerns)
+**Advantages:**
+- PostgreSQL extension (ACID transactions)
+- SQL + vector search in one database
+- Cost-effective
+- Production-ready
 
-**Mitigation:**
-- Use open-source models for embeddings (Sentence Transformers)
-- Deploy Llama 3 or Mistral for LLM (if privacy is critical)
+**Trade-off:** Slower than specialized vector databases (Pinecone, Weaviate)
 
----
+### OpenAI
 
-## Future Enhancements
+**Advantages:**
+- High-quality embeddings and LLM
+- Fast response times
+- Simple API
 
-### Short-term (Next 3 months)
-- [ ] Multi-language support
-- [ ] Document-level access control
-- [ ] Advanced filtering (date range, document type)
-- [ ] Query history & saved searches
-- [ ] Slack & email integrations
+**Trade-offs:**
+- Cost at scale
+- Data sent to third-party
 
-### Medium-term (6 months)
-- [ ] Hybrid search (keyword + semantic)
-- [ ] Re-ranking for better accuracy
-- [ ] Summarization for long documents
-- [ ] Conversational memory (multi-turn Q&A)
-- [ ] Custom embeddings fine-tuning
-
-### Long-term (1 year)
-- [ ] Graph-based knowledge representation
-- [ ] Automated knowledge base updates
-- [ ] Proactive suggestions
-- [ ] Multi-modal support (images, videos)
-- [ ] Federated search across all company tools
-
----
+**Mitigation:** Can swap to open-source models (Llama 3, Mistral) for cost/privacy
 
 ## Troubleshooting
 
-### Backend not starting
-```bash
-# Check logs
-docker-compose logs backend
+### Backend fails to start
 
-# Common fix:
+```bash
+docker-compose logs backend
 docker-compose restart backend
 ```
 
 ### No documents indexed
+
 ```bash
-# Check document count
+# Check health
 curl http://localhost:8000/health
 
 # Manually trigger ingestion
 docker-compose exec backend python -c "from ingestion.ingest_pipeline import run_ingestion; run_ingestion()"
 ```
 
-### Slow query responses
+### Slow queries
+
 ```bash
-# Check pgvector index
+# Verify HNSW index exists
 docker-compose exec postgres psql -U skyro -d skyro_knowledge -c "\d documents"
 ```
 
----
+### Database connection issues
 
-## Adding Your Own Documents
+```bash
+# Restart database
+docker-compose restart postgres
 
-Want to search through your own documents?
+# Check database logs
+docker-compose logs postgres
+```
 
-### Supported Formats
-- ✅ **Markdown** (.md)
-- ✅ **Plain Text** (.txt)
-- ✅ **JSON** (.json)
-- ✅ **PDF** (.pdf) - automatically extracts text
+## Development
 
-### How to Add Documents
+### Running Tests
 
-1. **Place files in the documents folder:**
-   ```bash
-   # Confluence-style docs
-   cp your-doc.md data/documents/confluence/
+```bash
+cd backend
+pytest tests/
+```
 
-   # Meeting notes
-   cp meeting-notes.pdf data/documents/meetings/
+### Local Development (without Docker)
 
-   # Product specs
-   cp spec.txt data/documents/product_specs/
-   ```
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
 
-2. **Restart the backend:**
-   ```bash
-   docker-compose restart backend
-   ```
+# Frontend
+cd frontend
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-3. **Wait for ingestion** (check logs):
-   ```bash
-   docker-compose logs -f backend
-   # Look for: "✓ Ingestion complete!"
-   ```
+### Code Style
 
-4. **Start searching!**
-   Open http://localhost:8501 and ask questions about your new documents.
+- Python: PEP 8
+- Type hints: Python 3.11+
+- Docstrings: Google style
 
-**📄 For detailed instructions on adding PDFs and Word docs, see [HOW_TO_ADD_PDF_WORD.md](HOW_TO_ADD_PDF_WORD.md)**
+## License
 
----
+This project is for internal use and evaluation purposes.
 
-## Helpful Guides
+## Contact
 
-- **🚀 [SETUP_GUIDE.md](SETUP_GUIDE.md)** - Step-by-step setup for beginners
-- **📄 [HOW_TO_ADD_PDF_WORD.md](HOW_TO_ADD_PDF_WORD.md)** - Guide for adding PDF and Word documents
-
----
-
-**Built with ❤️ for Skyro Engineering Team**
+For questions or support, please contact the engineering team.

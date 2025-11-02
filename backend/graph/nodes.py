@@ -32,17 +32,13 @@ class RAGNodes:
         query = state["query"]
         logger.info(f"Retrieving documents for query: {query[:100]}...")
 
-        # Generate query embedding
         query_embedding = self.embedder.embed_query(query)
-
-        # Search for similar documents
         similar_docs = self.vector_store.similarity_search(
             query_embedding=query_embedding,
             top_k=settings.retrieval_top_k,
             similarity_threshold=settings.retrieval_similarity_threshold
         )
 
-        # Convert to dict format
         retrieved_docs = [
             {
                 "content": doc.content,
@@ -69,13 +65,11 @@ class RAGNodes:
         """
         retrieved_docs = state["retrieved_docs"]
 
-        # Simple heuristic: check if we have enough high-quality documents
         if not retrieved_docs:
             logger.warning("No documents retrieved")
             state["should_regenerate"] = True
             return state
 
-        # Check average similarity
         avg_similarity = sum(doc["similarity"] for doc in retrieved_docs) / len(retrieved_docs)
 
         if avg_similarity < 0.75:
@@ -104,7 +98,6 @@ class RAGNodes:
             state["sources"] = []
             return state
 
-        # Format context
         context_parts = []
         sources = []
 
@@ -113,7 +106,6 @@ class RAGNodes:
             metadata = doc["metadata"]
             similarity = doc["similarity"]
 
-            # Add to context
             context_parts.append(
                 f"[Document {i}] (Relevance: {similarity:.2f})\n"
                 f"Source: {metadata.get('source', 'Unknown')}\n"
@@ -121,7 +113,6 @@ class RAGNodes:
                 f"Content:\n{content}\n"
             )
 
-            # Add to sources
             sources.append({
                 "source": metadata.get("source", "Unknown"),
                 "type": metadata.get("type", "Unknown"),
@@ -149,7 +140,6 @@ class RAGNodes:
 
         logger.info("Generating answer with LLM...")
 
-        # Create prompt
         system_prompt = """You are a helpful AI assistant for Skyro, a fintech company.
 Your role is to answer employee questions based on internal company documents.
 
@@ -201,9 +191,5 @@ def should_regenerate(state: GraphState) -> str:
         Next node name
     """
     if state.get("should_regenerate", False):
-        logger.info("Context insufficient, would regenerate query (simplified for now)")
-        # In a full implementation, this would go to a query expansion node
-        # For simplicity, we'll just continue to generation
-        return "format_context"
-    else:
-        return "format_context"
+        logger.info("Context insufficient, continuing to format")
+    return "format_context"

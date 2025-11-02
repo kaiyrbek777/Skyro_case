@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "INFO"
     auto_ingest_on_startup: bool = True
-    clear_db_before_ingestion: bool = True  # Clear existing chunks before re-indexing
+    clear_db_before_ingestion: bool = True
 
     # Retrieval
     retrieval_top_k: int = 5
