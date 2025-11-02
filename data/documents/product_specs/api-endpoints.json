@@ -1,0 +1,321 @@
+{
+  "api_specification": {
+    "title": "Skyro Public API v2.0",
+    "version": "2.0.0",
+    "base_url": "https://api.skyro.com/v2",
+    "authentication": "Bearer Token (OAuth 2.0)",
+    "last_updated": "2024-02-01",
+    "documentation_url": "https://docs.skyro.com/api"
+  },
+  "endpoints": {
+    "authentication": {
+      "oauth_token": {
+        "path": "/oauth/token",
+        "method": "POST",
+        "description": "Obtain access token using client credentials",
+        "rate_limit": "10 requests per minute",
+        "request_body": {
+          "grant_type": "client_credentials",
+          "client_id": "string (required)",
+          "client_secret": "string (required)",
+          "scope": "string (optional)"
+        },
+        "response": {
+          "access_token": "string",
+          "token_type": "Bearer",
+          "expires_in": 3600,
+          "scope": "read write"
+        }
+      }
+    },
+    "accounts": {
+      "get_account": {
+        "path": "/accounts/{account_id}",
+        "method": "GET",
+        "description": "Retrieve account details",
+        "rate_limit": "300 requests per minute",
+        "path_parameters": {
+          "account_id": "string (UUID)"
+        },
+        "response": {
+          "id": "acc_1a2b3c4d5e6f",
+          "type": "checking",
+          "status": "active",
+          "balance": {
+            "available": 15420.50,
+            "current": 15420.50,
+            "currency": "USD"
+          },
+          "account_number": "****6789",
+          "routing_number": "121000248",
+          "created_at": "2024-01-15T10:30:00Z",
+          "updated_at": "2024-02-20T14:22:10Z"
+        }
+      },
+      "list_accounts": {
+        "path": "/accounts",
+        "method": "GET",
+        "description": "List all accounts for authenticated user",
+        "rate_limit": "300 requests per minute",
+        "query_parameters": {
+          "status": "active | inactive | all (default: active)",
+          "type": "checking | savings | business",
+          "limit": "integer (default: 20, max: 100)",
+          "offset": "integer (default: 0)"
+        },
+        "response": {
+          "data": [
+            {
+              "id": "acc_1a2b3c4d5e6f",
+              "type": "checking",
+              "status": "active",
+              "balance": {
+                "available": 15420.50,
+                "current": 15420.50,
+                "currency": "USD"
+              }
+            }
+          ],
+          "pagination": {
+            "total": 2,
+            "limit": 20,
+            "offset": 0,
+            "has_more": false
+          }
+        }
+      }
+    },
+    "transactions": {
+      "create_payment": {
+        "path": "/payments",
+        "method": "POST",
+        "description": "Initiate a payment or transfer",
+        "rate_limit": "10 requests per second (burst: 50)",
+        "request_body": {
+          "source_account_id": "acc_1a2b3c4d5e6f (required)",
+          "destination_account_id": "acc_7g8h9i0j1k2l (required for internal)",
+          "destination_routing": "string (required for external)",
+          "destination_account": "string (required for external)",
+          "amount": 100.50,
+          "currency": "USD",
+          "description": "Payment for services",
+          "idempotency_key": "string (recommended)",
+          "metadata": {
+            "invoice_id": "INV-12345",
+            "customer_id": "CUST-67890"
+          }
+        },
+        "response": {
+          "id": "pay_3m4n5o6p7q8r",
+          "status": "pending",
+          "amount": 100.50,
+          "currency": "USD",
+          "source_account_id": "acc_1a2b3c4d5e6f",
+          "destination_account_id": "acc_7g8h9i0j1k2l",
+          "description": "Payment for services",
+          "created_at": "2024-02-20T15:30:45Z",
+          "estimated_arrival": "2024-02-22T09:00:00Z",
+          "fees": {
+            "total": 0.00,
+            "breakdown": []
+          }
+        }
+      },
+      "get_transaction": {
+        "path": "/transactions/{transaction_id}",
+        "method": "GET",
+        "description": "Retrieve transaction details",
+        "rate_limit": "300 requests per minute",
+        "path_parameters": {
+          "transaction_id": "string (UUID)"
+        },
+        "response": {
+          "id": "txn_9s0t1u2v3w4x",
+          "type": "debit",
+          "status": "completed",
+          "amount": -45.20,
+          "description": "Amazon.com Purchase",
+          "merchant": {
+            "name": "Amazon.com",
+            "category": "shopping",
+            "logo_url": "https://cdn.skyro.com/logos/amazon.png"
+          },
+          "account_id": "acc_1a2b3c4d5e6f",
+          "created_at": "2024-02-20T12:15:30Z",
+          "settled_at": "2024-02-20T12:15:35Z",
+          "metadata": {
+            "category": "shopping",
+            "tags": ["online", "retail"]
+          }
+        }
+      },
+      "list_transactions": {
+        "path": "/transactions",
+        "method": "GET",
+        "description": "List transactions with filtering and pagination",
+        "rate_limit": "300 requests per minute",
+        "query_parameters": {
+          "account_id": "string (required)",
+          "start_date": "ISO 8601 date (optional)",
+          "end_date": "ISO 8601 date (optional)",
+          "type": "debit | credit | all (default: all)",
+          "status": "pending | completed | failed (default: all)",
+          "min_amount": "float (optional)",
+          "max_amount": "float (optional)",
+          "category": "string (optional)",
+          "limit": "integer (default: 20, max: 100)",
+          "offset": "integer (default: 0)"
+        },
+        "response": {
+          "data": [
+            {
+              "id": "txn_9s0t1u2v3w4x",
+              "type": "debit",
+              "amount": -45.20,
+              "description": "Amazon.com Purchase",
+              "created_at": "2024-02-20T12:15:30Z"
+            }
+          ],
+          "pagination": {
+            "total": 487,
+            "limit": 20,
+            "offset": 0,
+            "has_more": true
+          }
+        }
+      }
+    },
+    "cards": {
+      "list_cards": {
+        "path": "/cards",
+        "method": "GET",
+        "description": "List all cards (virtual and physical)",
+        "rate_limit": "300 requests per minute",
+        "query_parameters": {
+          "account_id": "string (optional)",
+          "status": "active | inactive | frozen (default: active)",
+          "type": "virtual | physical (default: all)"
+        },
+        "response": {
+          "data": [
+            {
+              "id": "card_5y6z7a8b9c0d",
+              "type": "virtual",
+              "status": "active",
+              "last_four": "4242",
+              "exp_month": 12,
+              "exp_year": 2027,
+              "cardholder_name": "John Doe",
+              "created_at": "2024-01-15T10:30:00Z"
+            }
+          ]
+        }
+      },
+      "update_card_status": {
+        "path": "/cards/{card_id}/status",
+        "method": "PATCH",
+        "description": "Freeze, unfreeze, or deactivate a card",
+        "rate_limit": "60 requests per minute",
+        "path_parameters": {
+          "card_id": "string (UUID)"
+        },
+        "request_body": {
+          "status": "active | frozen | inactive (required)"
+        },
+        "response": {
+          "id": "card_5y6z7a8b9c0d",
+          "status": "frozen",
+          "updated_at": "2024-02-20T16:45:22Z"
+        }
+      },
+      "set_card_limits": {
+        "path": "/cards/{card_id}/limits",
+        "method": "PUT",
+        "description": "Set spending limits for a card",
+        "rate_limit": "60 requests per minute",
+        "request_body": {
+          "daily_limit": 1000.00,
+          "weekly_limit": 5000.00,
+          "monthly_limit": 20000.00,
+          "per_transaction_limit": 500.00
+        },
+        "response": {
+          "id": "card_5y6z7a8b9c0d",
+          "limits": {
+            "daily_limit": 1000.00,
+            "weekly_limit": 5000.00,
+            "monthly_limit": 20000.00,
+            "per_transaction_limit": 500.00
+          },
+          "updated_at": "2024-02-20T16:50:10Z"
+        }
+      }
+    },
+    "webhooks": {
+      "supported_events": {
+        "account.created": "New account opened",
+        "account.updated": "Account details changed",
+        "account.closed": "Account closed",
+        "transaction.created": "New transaction posted",
+        "transaction.updated": "Transaction status changed",
+        "payment.succeeded": "Payment completed successfully",
+        "payment.failed": "Payment failed",
+        "card.created": "New card issued",
+        "card.frozen": "Card frozen by user",
+        "card.transaction.declined": "Card transaction declined"
+      },
+      "webhook_payload_example": {
+        "event_id": "evt_1e2f3g4h5i6j",
+        "event_type": "transaction.created",
+        "created_at": "2024-02-20T17:00:00Z",
+        "data": {
+          "object": "transaction",
+          "id": "txn_9s0t1u2v3w4x",
+          "type": "debit",
+          "amount": -45.20,
+          "account_id": "acc_1a2b3c4d5e6f"
+        }
+      },
+      "webhook_signature": "Verify using HMAC-SHA256 with your webhook secret"
+    }
+  },
+  "error_codes": {
+    "400": {
+      "code": "bad_request",
+      "message": "Invalid request parameters"
+    },
+    "401": {
+      "code": "unauthorized",
+      "message": "Invalid or missing authentication token"
+    },
+    "403": {
+      "code": "forbidden",
+      "message": "Insufficient permissions"
+    },
+    "404": {
+      "code": "not_found",
+      "message": "Resource not found"
+    },
+    "429": {
+      "code": "rate_limit_exceeded",
+      "message": "Too many requests. Retry after specified time."
+    },
+    "500": {
+      "code": "internal_error",
+      "message": "Internal server error. Please contact support."
+    }
+  },
+  "rate_limiting": {
+    "tiers": {
+      "free": "60 requests per minute",
+      "standard": "300 requests per minute",
+      "premium": "1000 requests per minute",
+      "enterprise": "Custom limits"
+    },
+    "headers": {
+      "X-RateLimit-Limit": "Maximum requests per window",
+      "X-RateLimit-Remaining": "Requests remaining",
+      "X-RateLimit-Reset": "Unix timestamp when limit resets"
+    }
+  }
+}

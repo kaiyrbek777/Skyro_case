@@ -1,0 +1,383 @@
+# Data Privacy & GDPR Compliance Policy
+
+**Document Type:** Compliance Policy
+**Version:** 2.0
+**Effective Date:** January 1, 2024
+**Owner:** Legal & Compliance Team
+**Classification:** Internal
+
+## Executive Summary
+
+This policy outlines Skyro's approach to data privacy and compliance with:
+- General Data Protection Regulation (GDPR) - EU
+- California Consumer Privacy Act (CCPA) - California
+- Other applicable state and federal privacy laws
+
+## Scope
+
+This policy applies to:
+- All customer personal data collected by Skyro
+- All employees with access to customer data
+- All third-party vendors processing data on behalf of Skyro
+- All geographic locations where Skyro operates
+
+## Data Collection Principles
+
+### 1. Lawful Basis for Processing
+
+We collect and process personal data only when we have a lawful basis:
+
+**Consent:**
+- Marketing communications
+- Optional product features
+- Cookies (non-essential)
+
+**Contract Performance:**
+- Account opening and management
+- Transaction processing
+- Customer support
+
+**Legal Obligation:**
+- KYC/AML compliance
+- Tax reporting
+- Regulatory audits
+
+**Legitimate Interest:**
+- Fraud prevention
+- Service improvements
+- Security monitoring
+
+### 2. Data Minimization
+
+We collect only data that is:
+- Necessary for stated purpose
+- Adequate for intended use
+- Relevant to business need
+- Not excessive
+
+**Example - Account Opening:**
+Collected: Name, DOB, SSN, Address, Email, Phone
+NOT Collected: Race, religion, health data, political views
+
+### 3. Purpose Limitation
+
+Personal data collected for one purpose cannot be used for unrelated purposes without new consent.
+
+**Allowed:**
+- Data collected for account opening → Used for fraud detection (compatible purpose)
+
+**Not Allowed:**
+- Data collected for account opening → Sold to third parties for marketing (incompatible)
+
+## Data Subject Rights (GDPR)
+
+### Right to Access (Article 15)
+Customers can request:
+- What data we hold
+- How we use it
+- Who we share it with
+- How long we keep it
+
+**Response Time:** 30 days
+**Method:** Self-service portal or support ticket
+
+### Right to Rectification (Article 16)
+Customers can correct inaccurate data.
+
+**Implementation:**
+- In-app profile editing
+- Support ticket for complex changes
+- Verification required for sensitive fields
+
+### Right to Erasure / "Right to be Forgotten" (Article 17)
+Customers can request deletion when:
+- Data no longer necessary
+- Consent withdrawn
+- Objection to processing
+- Data processed unlawfully
+
+**Exceptions (we can refuse):**
+- Legal obligation (e.g., 7-year financial record retention)
+- Legal defense
+- Public interest
+
+### Right to Data Portability (Article 20)
+Customers can receive their data in machine-readable format (JSON, CSV).
+
+**Included:**
+- Transaction history
+- Account information
+- Profile data
+
+**Excluded:**
+- Derived/inferred data (fraud scores, credit risk)
+- Data about other people
+
+### Right to Object (Article 21)
+Customers can object to:
+- Direct marketing (absolute right)
+- Profiling
+- Automated decision-making
+
+### Right to Restrict Processing (Article 18)
+Customers can request temporary halt to processing while:
+- Accuracy is being verified
+- Lawfulness is being assessed
+
+## CCPA Consumer Rights (California)
+
+California residents have additional rights:
+
+### Right to Know
+- Categories of personal information collected
+- Sources of data
+- Business purpose for collection
+- Categories of third parties we share with
+
+### Right to Delete
+Similar to GDPR erasure, with same exceptions.
+
+### Right to Opt-Out of Sale
+**Note:** Skyro does NOT sell personal information.
+
+### Right to Non-Discrimination
+We cannot discriminate against users who exercise their rights.
+
+## Data Processing Records
+
+We maintain detailed records of:
+- Data processing activities
+- Categories of data
+- Purpose of processing
+- Data retention periods
+- Security measures
+- Third-party processors
+
+## International Data Transfers
+
+### EU to US Transfers
+We use EU-approved mechanisms:
+- Standard Contractual Clauses (SCCs)
+- Adequacy decisions where applicable
+- Additional safeguards (encryption, access controls)
+
+### Data Localization
+- EU customer data stored in EU data centers
+- US customer data stored in US data centers
+- Cross-border transfers logged and monitored
+
+## Data Retention
+
+### Account Data
+- Active accounts: Retained while account open
+- Closed accounts: 7 years (financial regulation requirement)
+- After 7 years: Anonymized or deleted
+
+### Transaction Data
+- 7 years (IRS requirement)
+- After 7 years: Anonymized for analytics
+
+### Marketing Data
+- Until consent withdrawn + 30 days
+- Unsubscribe = immediate cessation
+
+### Logs and Monitoring
+- Security logs: 1 year
+- Application logs: 90 days
+- Audit logs: 7 years
+
+## Third-Party Data Processors
+
+All vendors must:
+- Sign Data Processing Agreement (DPA)
+- Implement appropriate security measures
+- Not use data for own purposes
+- Delete data upon contract termination
+- Allow audits
+
+**Current Processors:**
+- Plaid (bank account verification) - DPA signed
+- Alloy (identity verification) - DPA signed
+- SendGrid (email) - DPA signed
+- Twilio (SMS) - DPA signed
+- AWS (infrastructure) - BAA + DPA
+
+## Security Measures
+
+### Technical Controls
+- Encryption at rest (AES-256)
+- Encryption in transit (TLS 1.3)
+- Access controls (RBAC)
+- Multi-factor authentication
+- Regular penetration testing
+
+### Organizational Controls
+- Data privacy training (annual)
+- Background checks for employees
+- Confidentiality agreements
+- Incident response plan
+- Privacy by design in new features
+
+## Data Breach Response
+
+### Breach Definition
+Unauthorized access, disclosure, or loss of personal data.
+
+### Response Timeline
+- **Detection to containment:** <1 hour
+- **Assessment:** <4 hours
+- **Notification to DPO:** <12 hours
+- **Regulatory notification:** <72 hours (if required)
+- **Customer notification:** As soon as practical
+
+### Notification Triggers
+We notify regulators if breach:
+- Likely to result in risk to rights and freedoms
+- Affects >500 individuals
+- Involves sensitive data (SSN, financial)
+
+## Privacy by Design
+
+All new products/features must:
+- Complete Privacy Impact Assessment (PIA)
+- Minimize data collection
+- Enable user controls
+- Default to privacy-friendly settings
+- Document legal basis for processing
+
+### PIA Template
+1. What data is collected?
+2. Why is it necessary?
+3. What is the lawful basis?
+4. How long will it be retained?
+5. Who will have access?
+6. What are the risks?
+7. How are risks mitigated?
+
+## Cookies and Tracking
+
+### Cookie Categories
+
+**Strictly Necessary (no consent required):**
+- Session management
+- Security
+- Load balancing
+
+**Functional (consent required):**
+- Remember preferences
+- Language selection
+- Font size
+
+**Analytics (consent required):**
+- Usage statistics
+- Performance monitoring
+- A/B testing
+
+**Marketing (consent required):**
+- Advertising
+- Retargeting
+- Social media integration
+
+### Cookie Consent
+- Banner on first visit
+- Granular consent options
+- Easy withdrawal
+- Consent recorded and auditable
+
+## Children's Privacy (COPPA)
+
+- Skyro services are NOT directed at children under 13
+- We do NOT knowingly collect data from children under 13
+- If discovered, we delete immediately and notify parents
+
+**Age Verification:**
+- Date of birth collected during signup
+- Accounts with age <18 flagged for review
+
+## Employee Training
+
+### Required Training
+- All employees: Privacy basics (annual)
+- Customer-facing: GDPR/CCPA rights (bi-annual)
+- Engineers: Privacy by design (project-based)
+- Compliance team: Advanced privacy law (quarterly)
+
+### Training Topics
+- Data protection principles
+- Customer rights
+- Incident reporting
+- Secure data handling
+- Vendor management
+
+## Data Protection Officer (DPO)
+
+**DPO:** Rachel Kim
+**Contact:** dpo@skyro.com
+**Phone:** +1 (415) 555-0100
+
+**Responsibilities:**
+- Monitor GDPR compliance
+- Advise on PIAs
+- Coordinate with regulators
+- Handle data subject requests
+- Investigate complaints
+
+## Audits and Assessments
+
+### Internal Audits
+- Quarterly privacy compliance checks
+- Annual comprehensive audit
+- Ad-hoc audits for new features
+
+### External Audits
+- Annual SOC 2 Type II audit
+- Bi-annual penetration testing
+- Regulatory examinations (as required)
+
+### Audit Findings
+- Tracked in compliance system
+- Remediation plans required within 30 days
+- Critical findings escalated to Board
+
+## Regulatory Authorities
+
+### EU Data Protection Authorities
+Lead supervisory authority: Ireland DPC (for EU operations)
+
+### US Authorities
+- FTC (Federal Trade Commission)
+- CFPB (Consumer Financial Protection Bureau)
+- State Attorneys General
+
+## Policy Updates
+
+This policy is reviewed:
+- Annually (scheduled)
+- When regulations change
+- After significant privacy incidents
+- When business operations change materially
+
+**Notification of Changes:**
+- Email to all customers (material changes)
+- In-app notification
+- Updated on website with effective date
+
+## Contact Information
+
+**Privacy Questions:**
+- Email: privacy@skyro.com
+- Mail: Skyro Privacy Team, 123 Market St, San Francisco, CA 94105
+
+**Data Subject Requests:**
+- Portal: https://skyro.com/privacy/requests
+- Email: dsar@skyro.com
+
+**DPO:**
+- Email: dpo@skyro.com
+- Phone: +1 (415) 555-0100
+
+---
+
+**Approved by:** General Counsel & DPO
+**Next Review Date:** January 1, 2025
+**Document ID:** COMP-PRIV-001
