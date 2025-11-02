@@ -19,34 +19,33 @@ A production-ready RAG (Retrieval-Augmented Generation) system designed to help 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    User Interface                        │
+│                    User Interface                       │
 │              Streamlit Chat UI (Port 8501)              │
 └───────────────────────┬─────────────────────────────────┘
                         │
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│                    Backend API                           │
+│                    Backend API                          │
 │              FastAPI Server (Port 8000)                 │
-│                                                          │
-│  ┌────────────────────────────────────────────────┐    │
-│  │            LangGraph Workflow                  │    │
-│  │  Retrieve → Evaluate → Format → Generate      │    │
-│  └────────────────────────────────────────────────┘    │
+│                                                         │
+│  ┌────────────────────────────────────────────────┐     │
+│  │            LangGraph Workflow                  │     │
+│  │  Retrieve → Evaluate → Format → Generate       │     │
+│  └────────────────────────────────────────────────┘     │
 └───────────────────────┬─────────────────────────────────┘
                         │
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│                 Vector Database                          │
+│                 Vector Database                         │
 │              PostgreSQL + pgvector                      │
-│  ┌──────────────────────────────────────────────┐      │
-│  │  Documents Table                             │      │
-│  │  ├─ content (text)                           │      │
-│  │  ├─ embedding (vector[1536])                 │      │
-│  │  ├─ metadata (jsonb)                         │      │
-│  │  └─ HNSW Index                               │      │
-│  └──────────────────────────────────────────────┘      │
+│  ┌──────────────────────────────────────────────┐       │
+│  │  Documents Table                             │       │
+│  │  ├─ content (text)                           │       │
+│  │  ├─ embedding (vector[1536])                 │       │
+│  │  ├─ metadata (jsonb)                         │       │
+│  │  └─ HNSW Index                               │       │
+│  └──────────────────────────────────────────────┘       │
 └─────────────────────────────────────────────────────────┘
-```
 
 ### Technology Stack
 
