@@ -35,7 +35,7 @@ class RAGWorkflow:
 
         # Add edges
         workflow.add_edge("retrieve_documents", "evaluate_context")
-        workflow.add_edge("evaluate_context", "format_context")  # Simplified flow
+        workflow.add_edge("evaluate_context", "format_context") 
         workflow.add_edge("format_context", "generate_answer")
         workflow.add_edge("generate_answer", END)
 
