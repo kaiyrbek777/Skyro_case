@@ -186,15 +186,15 @@ DATABASE_URL=postgresql://skyro:skyro_secure_pass@postgres:5432/skyro_knowledge
 # Optional - Models
 EMBEDDING_MODEL=text-embedding-3-small
 LLM_MODEL=gpt-4o
-LLM_TEMPERATURE=0.1
+LLM_TEMPERATURE=0.3
 ```
 
 ### Backend Settings
 
 Located in `backend/config.py`:
 
-- `chunk_size`: 2000 characters
-- `chunk_overlap`: 400 characters
+- `chunk_size`: 1200 characters
+- `chunk_overlap`: 300 characters
 - `retrieval_top_k`: 5 documents
 - `retrieval_similarity_threshold`: 0.2
 - `clear_db_before_ingestion`: True
