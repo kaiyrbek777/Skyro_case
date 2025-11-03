@@ -11,8 +11,8 @@ class DocumentChunker:
 
     def __init__(
         self,
-        chunk_size: int = 2000,
-        chunk_overlap: int = 400
+        chunk_size: int = 1200,
+        chunk_overlap: int = 300
     ):
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
