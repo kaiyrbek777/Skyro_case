@@ -1,6 +1,3 @@
-"""
-LangGraph nodes for RAG workflow
-"""
 from typing import Dict, Any
 from graph.state import GraphState
 from vector_store.pgvector_store import PgVectorStore
@@ -11,8 +8,6 @@ from utils.logger import logger
 
 
 class RAGNodes:
-    """Collection of nodes for RAG graph"""
-
     def __init__(self):
         self.vector_store = PgVectorStore()
         self.embedder = Embedder()
@@ -20,15 +15,6 @@ class RAGNodes:
         logger.info("Initialized RAG nodes")
 
     def retrieve_documents(self, state: GraphState) -> GraphState:
-        """
-        Node: Retrieve relevant documents from vector store
-
-        Args:
-            state: Current graph state
-
-        Returns:
-            Updated state with retrieved documents
-        """
         query = state["query"]
         logger.info(f"Retrieving documents for query: {query[:100]}...")
 
@@ -54,15 +40,6 @@ class RAGNodes:
         return state
 
     def evaluate_context(self, state: GraphState) -> GraphState:
-        """
-        Node: Evaluate if retrieved context is sufficient
-
-        Args:
-            state: Current graph state
-
-        Returns:
-            Updated state with should_regenerate flag
-        """
         retrieved_docs = state["retrieved_docs"]
 
         if not retrieved_docs:
@@ -82,15 +59,6 @@ class RAGNodes:
         return state
 
     def format_context(self, state: GraphState) -> GraphState:
-        """
-        Node: Format retrieved documents into context string
-
-        Args:
-            state: Current graph state
-
-        Returns:
-            Updated state with formatted context
-        """
         retrieved_docs = state["retrieved_docs"]
 
         if not retrieved_docs:
@@ -126,34 +94,70 @@ class RAGNodes:
         return state
 
     def generate_answer(self, state: GraphState) -> GraphState:
-        """
-        Node: Generate answer using LLM
-
-        Args:
-            state: Current graph state
-
-        Returns:
-            Updated state with generated answer
-        """
         query = state["query"]
         context = state["context"]
 
         logger.info("Generating answer with LLM...")
 
-        system_prompt = """You are a helpful AI assistant for Skyro, a fintech company.
-Your role is to answer employee questions based on internal company documents.
+        system_prompt = """ 
+        You are Skyro's AI Knowledge Assistant, an expert internal documentation system designed to provide comprehensive, accurate information to Skyro employees.
 
-Guidelines:
-- Use ONLY the provided context to answer questions
-- Be concise and accurate
-- If the context doesn't contain enough information, say so
-- Cite specific documents when possible
-- Use a professional but friendly tone"""
+## YOUR ROLE AND EXPERTISE
+You have deep knowledge of Skyro's fintech operations across multiple domains:
+- **Payment Systems**: Transaction processing, settlement, reconciliation
+- **KYC/Compliance**: Identity verification, regulatory requirements, risk assessment
+- **Technical Infrastructure**: API architecture, system integrations, security protocols
+- **Product Features**: Core platform capabilities, user workflows, feature specifications
+- **Business Operations**: Strategic planning, OKRs, team processes, decision documentation
+- **Security & Risk**: Incident response, data protection, fraud detection
+
+## CORE PRINCIPLES
+
+### 1. Language Policy
+**ALWAYS respond in English**, regardless of query language. Skyro operates internationally and maintains English as the standard documentation language for consistency and accessibility.
+
+### 2. Information Accuracy
+- Base ALL answers strictly on provided context from internal documentation
+- NEVER fabricate, assume, or speculate beyond documented information
+- If information is incomplete, explicitly state what's known and what's missing
+- Synthesize information from multiple sources when relevant, but maintain accuracy
+
+### 3. Response Depth
+Provide **comprehensive yet focused** answers that:
+- Fully address the question with sufficient detail
+- Include relevant context, examples, and implications
+- Explain the "why" behind processes and decisions when documented
+- Anticipate follow-up questions and address them proactively
+- Balance completeness with readability (aim for 200-400 words for standard queries)
+
+## RESPONSE STRUCTURE
+
+### Standard Answer Format:
+
+**1. Direct Answer (2-4 sentences)**
+- Immediately address the core question
+- Provide the essential information upfront
+- Set context for the detailed explanation to follow
+
+**2. Comprehensive Details (Main Body)**
+- Elaborate on the answer with relevant specifics
+- Include step-by-step processes where applicable
+- Explain business context, rationale, or technical implementation
+- Highlight important requirements, constraints, or considerations
+- Use clear structure: paragraphs, bullet points, or numbered lists
+- Add examples or scenarios to illustrate concepts
+
+**3. Additional Context (When Relevant)**
+- Related information that adds value
+- Dependencies or prerequisites
+- Common issues or considerations
+- Timeline or performance expectations
+- Exceptions or special cases"""
 
         user_prompt = f"""Context from internal documents:
 {context}
 
-Question: {query}
+Question of user: {query}
 
 Please provide a clear and helpful answer based on the context above."""
 
@@ -181,15 +185,7 @@ Please provide a clear and helpful answer based on the context above."""
 
 
 def should_regenerate(state: GraphState) -> str:
-    """
-    Conditional edge: Determine if query should be regenerated
 
-    Args:
-        state: Current graph state
-
-    Returns:
-        Next node name
-    """
     if state.get("should_regenerate", False):
         logger.info("Context insufficient, continuing to format")
     return "format_context"
