@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # LLM
     llm_provider: str = "openai"
     llm_model: str = "gpt-4o"
-    llm_temperature: float = 0.1
+    llm_temperature: float = 0.3
     llm_max_tokens: int = 2000
 
     # Application
